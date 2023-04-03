@@ -44,34 +44,33 @@ export default {
         return
       }
       this.loading = true
+      this.result = ''
       const configuration = new Configuration({
         organization: 'org-PU0TFPfa5fLmjbpN3hFpbm1Q',
         apiKey: this.apiKey,
       })
       const openai = new OpenAIApi(configuration)
       // const res = await openai.listEngines()
-      const res = await openai.createCompletion({
-        // text 模型
-        model: 'text-davinci-003',
-        prompt: this.searchText,
-        max_tokens: 2048,
-        temperature: 0.2,
-      })
-      if (res.status == 200) {
-        this.loading = false
-        try {
+      try {
+        const res = await openai.createCompletion({
+          // text mode
+          model: 'text-davinci-003',
+          prompt: this.searchText,
+          max_tokens: 2048,
+          temperature: 0.2,
+        })
+        if (res.status == 200) {
+          this.loading = false
           this.result = res.data.choices[0].text
           this.searchText = ''
-        } catch (err) {
-          console.log(err)
+        } else {
           this.loading = false
+          alert('error!')
         }
-      } else {
-        alert('error!')
+      } catch {
         this.loading = false
+        alert('error!')
       }
-
-      // this.result = this.searchText
     },
   },
 }
