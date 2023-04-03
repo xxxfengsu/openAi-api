@@ -25,7 +25,7 @@
 </template>
 
 <script>
-import { Configuration, OpenAIApi } from 'openai'
+// import { Configuration, OpenAIApi } from 'openai'
 export default {
   name: 'myChat',
   props: {},
@@ -45,32 +45,46 @@ export default {
       }
       this.loading = true
       this.result = ''
-      const configuration = new Configuration({
-        organization: 'org-PU0TFPfa5fLmjbpN3hFpbm1Q',
-        apiKey: this.apiKey,
-      })
-      const openai = new OpenAIApi(configuration)
-      // const res = await openai.listEngines()
-      try {
-        const res = await openai.createCompletion({
-          // text mode
-          model: 'text-davinci-003',
-          prompt: this.searchText,
-          max_tokens: 2048,
-          temperature: 0.2,
-        })
-        if (res.status == 200) {
-          this.loading = false
-          this.result = res.data.choices[0].text
-          this.searchText = ''
-        } else {
-          this.loading = false
-          alert('error!')
-        }
-      } catch {
-        this.loading = false
-        alert('error!')
+      // const configuration = new Configuration({
+      //   organization: 'org-PU0TFPfa5fLmjbpN3hFpbm1Q',
+      //   apiKey: this.apiKey,
+      // })
+      // const openai = new OpenAIApi(configuration)
+      // // const res = await openai.listEngines()
+      // // console.log(openai.axios.request)
+      // // openai.axios.request({})
+      // console.log(openai)
+      let data = {
+        model: 'text-davinci-003',
+        prompt: this.searchText,
+        max_tokens: 2048,
+        temperature: 0.2,
       }
+
+      fetch('https://api.openai.com/v1/completions', {
+        method: 'post',
+        mode: 'cors',
+        headers: {
+          'Content-Type': 'application/json',
+          Authorization: `Bearer ${this.apiKey}`,
+        },
+        body: JSON.stringify(data),
+      })
+        .then(async (res) => {
+          try {
+            let text = await res.json()
+            this.loading = false
+            this.result = text.choices[0].text
+            this.searchText = ''
+          } catch {
+            alert('error!')
+            this.loading = false
+          }
+        })
+        .catch((err) => {
+          this.loading = false
+          alert(err)
+        })
     },
   },
 }
